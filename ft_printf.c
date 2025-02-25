@@ -37,38 +37,34 @@ int ft_putnbr(int n)
     return count;
 }
 
-// int ft_conversion(va_list vl, const char format)
-// {
-//     int char_printed;
+#include <stdint.h> //esta libreria proporciona tipos de datos con tamaños especificos como uint32_t o uint64_t
 
-//     char_printed = 0;
+// Función auxiliar para imprimir en hexadecimal, base es una cadena que contiene 16 caracteres hexadecimales 0123456789abcdef
+int ft_puthex(unsigned long n, char *base)
+{
+    int count;
+    count = 0;
 
-//     if(format == 'c')
-//     {
-//         char_printed += ft_putchar(va_arg(vl, int));
-//     }
-//     else if (format == 's')
-//     {
-//         char_printed += ft_putstr(va_arg(vl, char*));
-//     }
-//     else if(format == 'p')
-//     {
+    if(n >= 16)
+    {
+        count += ft_puthex(n / 16, base);
+    }
+    count += ft_putchar(base[n % 16]);
+    return count;
+}
 
-//     }
-//     else if(format == 'd')
-//     {
+// Función para imprimir un puntero hexadecimal
+int ft_putptr(void *ptr)
+{
+    int count;
+    count = 0;
 
-//     }
-//     else if(format == 'u')
-//     {
+    unsigned long address = (unsigned long)ptr;
 
-//     }
-//     else if(format == 'x')
-//     {
-
-//     }
-//     else if(format)
-// }
+    count += ft_putstr("0x");
+    count += ft_puthex(address, "0123456789abcdef");
+    return count;
+}
 
 int ft_printf(const char *format, ...)
 {
@@ -94,8 +90,16 @@ int ft_printf(const char *format, ...)
             else if (*format == 'i' || *format == 'd')
             {
                 count += ft_putnbr(va_arg(args, int)); 
-                //se agregan más conversiones
             }
+            else if (*format == 'p')
+            {
+                count += ft_putptr(va_arg(args, void *));
+            }
+            else if (*format == '%')
+            {
+                count += ft_putchar('%');
+            }
+            // se agregan más conversiones 
         }
         else
         {
@@ -107,8 +111,11 @@ int ft_printf(const char *format, ...)
     return count; //devuelve el numero total de caracteres impresos
 }
 
+
+
+
 int main()
 {
-    ft_printf("Hola %s tengo %i", "Juan", 22);
+    ft_printf("Hola %s tengo %i y mi dirección es %p %% %% %%" , "Juan", 22, &main);
     return (0);
 }
