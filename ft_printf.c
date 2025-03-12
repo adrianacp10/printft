@@ -11,7 +11,7 @@ int ft_putstr(char *str)
 {
     int count = 0;
     if (!str)
-        str = "(null)";
+                str = "(null)";
     while (*str)
     {
         count += ft_putchar(*str);
@@ -53,6 +53,7 @@ int ft_puthex(unsigned long n, char *base)
     return count;
 }
 
+
 // Función para imprimir un puntero hexadecimal
 int ft_putptr(void *ptr)
 {
@@ -64,6 +65,81 @@ int ft_putptr(void *ptr)
     count += ft_putstr("0x");
     count += ft_puthex(address, "0123456789abcdef");
     return count;
+}
+
+//implementar %u manejar numeros sin signos 
+int ft_put_unsigned(unsigned int n)
+{
+    int count;
+    count = 0;
+
+    if (n == 0) // Caso especial: si n es 0, imprime '0' directamente.
+    {    
+        return ft_putchar('0');
+    }
+    if (n > 9)
+    {
+        count += ft_put_unsigned(n / 10);
+    }
+    count += ft_putchar(n % 10 + '0');
+    return count;
+}
+
+
+// Función para calcular la longitud de un número en hexadecimal
+int hex_len(unsigned int num)
+{
+    int len = 0;
+    while (num != 0)
+    {
+        len++;
+        num = num / 16;
+    }
+    return len;
+}
+// Función para calcular la longitud de un número en hexadecimal
+int hex_len(unsigned int num)
+{
+    int len = 0;
+    while (num != 0)
+    {
+        len++;
+        num = num / 16;
+    }
+    return len;
+}
+
+// Función auxiliar para imprimir en hexadecimal (minúsculas o mayúsculas)
+void ft_put_hex(unsigned int num, const char format)
+{
+    if (num >= 16)
+    {
+        ft_put_hex(num / 16, format);
+        ft_put_hex(num % 16, format);
+    }
+    else
+    {
+        if (num <= 9)
+            ft_putchar(num + '0');
+        else
+        {
+            if (format == 'x')
+                ft_putchar(num - 10 + 'a');
+            if (format == 'X')
+                ft_putchar(num - 10 + 'A');
+        }
+    }
+}
+
+// Función para imprimir un número en hexadecimal (para %x o %X)
+int ft_puthex(unsigned int num, const char format)
+{
+    if (num == 0)
+        return write(1, "0", 1);  // Si el número es 0, imprimimos "0" directamente
+    else
+        ft_put_hex(num, format);    // Llamamos a la función para imprimir en hexadecimal
+    
+    return hex_len(num);  // Retornamos la longitud del número en hexadecimal
 }
 
 int ft_printf(const char *format, ...)
@@ -99,6 +175,15 @@ int ft_printf(const char *format, ...)
             {
                 count += ft_putchar('%');
             }
+            else if (*format == 'u')
+            {
+                count += ft_put_unsigned(va_arg(args, unsigned int));
+            }
+            else if (*format == 'x' || *format == 'X')
+            {
+                count += ft_puthex_unsigned(va_arg(args, unsigned int), *format);  // Pasamos el formato ('x' o 'X')
+            }
+
             // se agregan más conversiones 
         }
         else
@@ -114,8 +199,20 @@ int ft_printf(const char *format, ...)
 
 
 
+// int main()
+// {
+//     ft_printf("Hola %s tengo %i y mi dirección es %p %% %% %%" , "Juan", 22, &main);
+//     return (0);
+// }
+
 int main()
 {
-    ft_printf("Hola %s tengo %i y mi dirección es %p %% %% %%" , "Juan", 22, &main);
-    return (0);
+    ft_printf("Caso 1 (cero): %u\n", 00000000);
+    ft_printf("Caso 2 (número pequeño): %u\n", 42);
+    ft_printf("Caso 3 (número mediano): %u\n", 123456);
+    ft_printf("Caso 4 (número grande): %u\n", 4294967295); // Máximo de unsigned int
+    ft_printf("Caso 5 (mitad del rango): %u\n", 2147483647); // Máximo de un int con signo
+    ft_printf("Hexadecimal minúsculas: %x\n", 255);
+    ft_printf("Hexadecimal mayúsculas: %X\n", 255);
+    return 0;
 }
